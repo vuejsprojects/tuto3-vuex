@@ -1,0 +1,85 @@
+<!DOCTYPE html "utf-8">
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="../vue.js"></script>
+    <script src="../vue-router.js"></script>
+    <script src="../vuex.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <h4>The state is showed by a parent component but
+             changed by a child component</h4>
+        <p>providing the store option to the root instance, injects the store 
+        into all child components of the root and is available on them as 
+        this.$store</p>
+        <p>It makes easier to build a module per component and to test/mock</p>
+        <Counter></Counter>
+    </div>
+</body>
+
+<script>
+    // Vuex store
+    const storex = new Vuex.Store({
+        state: {
+            count: 0
+        },
+        mutations: {
+            increment(state) {
+                state.count++
+            },
+            decrement(state) {
+                state.count--
+            },
+        }
+    });
+
+    // ButtonOp Counter companion
+    const ButtonOp = {
+        template: `
+    <div>
+        <button @click="increment">+</button><button @click="decrement">-</button>
+    </div>
+    `,
+        methods: {
+            increment() {
+                this.$store.commit('increment')
+            },
+            decrement() {
+                this.$store.commit('decrement')
+            },
+        }
+    };
+
+    // let's create a Counter component
+    const Counter = {
+        template: `
+        <div>
+            Counter: {{ count }}
+            <button-op/>
+        </div>
+    `,
+        computed: {
+            count() {
+                return this.$store.state.count
+            }
+        },
+        components: {
+            ButtonOp
+        }
+    }
+
+    new Vue({
+        el: "#app",
+        // now the store instance is injected into all child components.
+        store: storex,
+        components: {
+            Counter
+        }
+    })
+
+</script>
+
+</html>

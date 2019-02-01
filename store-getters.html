@@ -1,0 +1,114 @@
+<!DOCTYPE html "utf-8">
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="../vue.js"></script>
+    <script src="../vue-router.js"></script>
+    <script src="../vuex.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <h4>Getters</h4>
+        <p>if more than one component needs to make use of
+            computed derived state based on store state,
+            we can define "getters" in the store
+        </p>
+        <p>We can pass a <b>payload</b> to a mutation</p>
+        <Counter></Counter>
+        <story-type></story-type>
+    </div>
+</body>
+
+<script>
+    // Vuex store
+    // for clarification we define mutation as constants
+    // ex: increment
+
+    // ve can group all the mutaion constant in a file
+    const INCREMENT = 'increment'
+
+    const storex = new Vuex.Store({
+        state: {
+            count: 0
+        },
+        mutations: {
+            [INCREMENT] (state, payload) {
+                state.count += payload.by
+            },
+            decrement(state) {
+                state.count--
+            },
+        },
+        getters: {
+            odd: state => (state.count % 2 === 0) ? 'Even': 'Odd'
+        }
+    });
+
+    // ButtonOp Counter companion
+    const ButtonOp = {
+        template: `
+    <div>
+        <button @click="increment">+</button><button @click="decrement">-</button>
+    </div>
+    `,
+        methods: {
+            increment() {
+                this.$store.commit({
+                    type: INCREMENT,
+                    by: 3
+                })
+            },
+            decrement() {
+                this.$store.commit('decrement')
+            },
+        }
+    };
+
+    // let's create a Counter component
+    const Counter = {
+        template: `
+        <div>
+            Counter: {{ count }} - {{whatisit}}
+            <button-op/>
+        </div>
+    `,
+        computed: {
+            count() {
+                return this.$store.state.count
+            },
+            whatisit: function () {
+                return this.$store.getters.odd;
+            }
+        },
+        components: {
+            ButtonOp
+        }
+    }
+
+    const StoryType = {
+        template: `
+        <div>
+            <p>This is {{kind}} story</p>
+        </div>
+        `,
+        computed: {
+            kind: function () {
+                return this.$store.getters.odd === 'Even' ? 'a': 'an odd'
+            }
+        }
+    }
+    new Vue({
+        el: "#app",
+        // now the store instance is injected into all child components.
+        store: storex,
+        components: {
+            Counter,
+            StoryType
+        }
+    })
+
+</script>
+
+</html>
